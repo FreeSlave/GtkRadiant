@@ -284,7 +284,7 @@ static picoModel_t *_lwo_load( PM_PARAMS_LOAD ){
 				xyz[ 2 ] = pt->pos[ 1 ];
 
 ///* doom3 lwo data doesn't seem to have smoothing-angle information */
-//#if 0
+#if 0
 //				if ( surface->smooth <= 0 ) {
 //					/* use face normals */
 				normal[ 0 ] = v->norm[ 0 ];
@@ -292,7 +292,7 @@ static picoModel_t *_lwo_load( PM_PARAMS_LOAD ){
 				normal[ 2 ] = v->norm[ 1 ];
 				}
 				else
-//#endif
+#endif
 				{
 					/* smooth normals later */
 					normal[ 0 ] = 0;
