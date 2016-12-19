@@ -4,13 +4,21 @@
 # http://scons.org/
 
 import os
+import sys
 
 Import( [ 'utils', 'config', 'settings', 'lib_objects' ] )
 
 env = Environment( ENV = os.environ )
 settings.SetupEnvironment( env, config['name'] )
 env.Prepend( CPPPATH = [ '#tools/quake3/common' ] )
-env.Append( LIBS = [ 'm', 'pthread', 'png', 'jpeg' ] )
+
+## Hackery hack. Don't know how to tell scons to link statically the other way
+if sys.maxsize > 2**32:
+	libjpeg = env.File('/usr/lib/x86_64-linux-gnu/libjpeg.a')
+else:
+	libjpeg = env.File('/usr/lib/i386-linux-gnu/libjpeg.a')
+
+env.Append( LIBS = [ 'm', 'pthread', 'png', libjpeg ] )
 proj = utils.vcproj( os.path.join( GetLaunchDir(), 'tools/quake3/q3map2/q3map2.vcproj' ) )
 objects = lib_objects
 objects += [ os.path.join( 'tools/quake3/q3map2', i ) for i in proj.getSourceFiles() ]
