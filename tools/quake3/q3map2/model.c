@@ -616,6 +616,10 @@ void AddTriangleModels( entity_t *e ){
 
 		/* get model frame */
 		frame = IntForKey( e2, "_frame" );
+		/* XaeroX - start */
+		if ( !frame )
+			frame = IntForKey( e2, "sequence" );
+		/* XaeroX - end */
 
 		/* worldspawn (and func_groups) default to cast/recv shadows in worldspawn group */
 		if ( e == entities ) {
@@ -645,11 +649,19 @@ void AddTriangleModels( entity_t *e ){
 		temp = FloatForKey( e2, "modelscale" );
 		if ( temp != 0.0f ) {
 			scale[ 0 ] = scale[ 1 ] = scale[ 2 ] = temp;
+		} 
+		/* XaeroX - start */
+		else {
+			temp = FloatForKey( e2, "scale" );
+			if ( temp != 0.0f ) {
+				scale[ 0 ] = scale[ 1 ] = scale[ 2 ] = temp;
+			}
 		}
+		/* XaeroX - end */
 		value = ValueForKey( e2, "modelscale_vec" );
 		if ( value[ 0 ] != '\0' ) {
 			sscanf( value, "%f %f %f", &scale[ 0 ], &scale[ 1 ], &scale[ 2 ] );
-		}
+		}	
 
 		/* get "angle" (yaw) or "angles" (pitch yaw roll) */
 		angles[ 0 ] = angles[ 1 ] = angles[ 2 ] = 0.0f;
