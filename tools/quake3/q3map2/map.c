@@ -52,7 +52,7 @@ int c_areaportals;
 int c_detail;
 int c_structural;
 
-
+int g_nMapFileVersion = 0;	/* XaeroX */
 
 /*
    PlaneEqual()
@@ -1063,16 +1063,61 @@ static void ParseRawBrush( qboolean onlyLights ){
 
 		/* bp */
 		if ( g_bBrushPrimit == BPRIMIT_OLDBRUSHES ) {
-			GetToken( qfalse );
-			shift[ 0 ] = atof( token );
-			GetToken( qfalse );
-			shift[ 1 ] = atof( token );
+			/* XaeroX - start */
+			if ( g_nMapFileVersion < 220 ) {
+				GetToken( qfalse );
+				shift[ 0 ] = atof( token );
+				GetToken( qfalse );
+				shift[ 1 ] = atof( token );
+			} else {
+				GetToken( qfalse );
+				if ( strcmp( token, "[" ) ) 
+					Error( "missing '[' in texturedef" );
+				GetToken( qfalse );
+				side->vecs[0][0] = atof( token );
+				GetToken( qfalse );
+				side->vecs[0][1] = atof( token );
+				GetToken( qfalse );
+				side->vecs[0][2] = atof( token );
+				GetToken( qfalse );
+				side->vecs[0][3] = atof( token );
+				GetToken( qfalse );
+				if ( strcmp( token, "]" ) ) 
+					Error( "missing ']' in texturedef" );
+				GetToken( qfalse );
+				if ( strcmp( token, "[" ) ) 
+					Error( "missing '[' in texturedef" );
+				GetToken( qfalse );
+				side->vecs[1][0] = atof( token );
+				GetToken( qfalse );
+				side->vecs[1][1] = atof( token );
+				GetToken( qfalse );
+				side->vecs[1][2] = atof( token );
+				GetToken( qfalse );
+				side->vecs[1][3] = atof( token );
+				GetToken( qfalse );
+				if ( strcmp( token, "]" ) ) 
+					Error( "missing ']' in texturedef" );
+			}
+			/* XaeroX - end */
+
 			GetToken( qfalse );
 			rotate = atof( token );
 			GetToken( qfalse );
 			scale[ 0 ] = atof( token );
 			GetToken( qfalse );
 			scale[ 1 ] = atof( token );
+
+			/* XaeroX - start */
+			if ( g_nMapFileVersion >= 220 ) {
+				int axis, comp;
+				if ( !scale[0] ) scale[0] = 1.0f;
+				if ( !scale[1] ) scale[1] = 1.0f;
+				for ( axis = 0; axis < 2; ++axis )
+					for ( comp = 0; comp < 3; ++comp )
+						side->vecs[axis][comp] /= scale[axis];
+			}
+			/* XaeroX - end */
 		}
 
 		/* set default flags and values */
@@ -1127,7 +1172,8 @@ static void ParseRawBrush( qboolean onlyLights ){
 
 		/* bp: get the texture mapping for this texturedef / plane combination */
 		if ( g_bBrushPrimit == BPRIMIT_OLDBRUSHES ) {
-			QuakeTextureVecs( &mapplanes[ planenum ], shift, rotate, scale, side->vecs );
+			if ( g_nMapFileVersion < 220 )	/* XaeroX */
+				QuakeTextureVecs( &mapplanes[ planenum ], shift, rotate, scale, side->vecs );
 		}
 	}
 
@@ -1672,6 +1718,12 @@ static qboolean ParseMapEntity( qboolean onlyLights, qboolean noCollapseGroups )
 			/* parse a key / value pair */
 			ep = ParseEPair();
 
+			/* XaeroX - start */
+			if ( !strcmp( ep->key, "mapversion" ) ) {
+				g_nMapFileVersion = atoi( ep->value );
+				Sys_Printf( "Map version: %i\n", g_nMapFileVersion );
+			} else
+			/* XaeroX - end */
 			/* ydnar: 2002-07-06 fixed wolf bug with empty epairs */
 			if ( ep->key[ 0 ] != '\0' && ep->value[ 0 ] != '\0' ) {
 				ep->next = mapEnt->epairs;

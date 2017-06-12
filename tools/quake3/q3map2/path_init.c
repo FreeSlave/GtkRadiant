@@ -515,6 +515,21 @@ void InitPaths( int *argc, char **argv ){
 			argv[ i ] = NULL;
 		}
 
+		/* XaeroX - start */
+		else if ( argv[ i ][0] == '/' || argv[ i ][1] == ':' ) {
+			/* get base path from map file */
+			char mappath[MAX_OS_PATH];
+			char *p;
+			strcpy( mappath, argv[ i ] );
+			CleanPath( mappath );
+			p = strstr( mappath, "/maps/" );
+			if ( p && p != mappath ) {
+				*p = '\0';
+				StripFilename( mappath );
+				AddBasePath( mappath );
+			}
+		}
+		/* XaeroX - end */
 	}
 
 	/* remove processed arguments */
